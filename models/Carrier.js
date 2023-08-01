@@ -2,36 +2,34 @@ const { default: mongoose } = require("mongoose");
 const { Schema } = mongoose;
 const getNextSequenceValue = require("../middleware/counter");
 
-const CategorySchema = new Schema({
+const CarrierSchema = new Schema({
     id: {
         type: Number,
     },
     name: {
         type: String,
-        // required: true
-        default: 'Uncategorized'
     },
     slug: {
         type: String,
-        // required: true
     },
+    photo: {
+        type: Array,
+    },
+    count: {
+        type: Number,
+    }
 }, {
     timestamps: true
 });
 
-
-CategorySchema.pre("save", async function (next) {
+CarrierSchema.pre("save", async function (next) {
     const doc = this;
     if (doc.id == null) {
-        const seq = await getNextSequenceValue("Category");
+        const seq = await getNextSequenceValue("Carrier");
         doc.id = seq;
     }
     next();
 });
 
-
-
-
-
-const Category = mongoose.model("Category", CategorySchema);
-module.exports = Category;
+const Carrier = mongoose.model("Carrier", CarrierSchema);
+module.exports = Carrier;

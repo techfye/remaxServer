@@ -28,6 +28,7 @@ router.get('/', async (req, res) => {
 
                 const { count, totalCount, data } = response.data;
                 totalCnt = totalCount;
+                const productArr = [];
 
                 const categoryMap = new Map();
                 // Loop through each product in the response and insert/update it in MongoDB
@@ -85,7 +86,7 @@ router.get('/', async (req, res) => {
 
                     if (existingProduct) {
                         // Product exists, update its details
-                        await Product.updateOne({ productID },
+                        const updatedProduct = await Product.updateOne({ productID },
                             {
                                 name: productData.name,
                                 slug: slug,
@@ -94,12 +95,13 @@ router.get('/', async (req, res) => {
                                 price: productData.costBasis,
                                 stock: productData.onhand,
                                 barCode,
-                                images: ['https://theperfectroundgolf.com/wp-content/uploads/2022/04/placeholder.png']
+                                images: ['https://remax-six.vercel.app/assets/img/RemaxWirelessPlaceHolderImage.png']
                             });
                         updatedCount++;
+                        productArr.push(updatedProduct);
                     } else {
                         // Product does not exist, create a new product
-                        await Product.create({
+                        const insertedProduct = await Product.create({
                             productID: productData.id,
                             name: productData.name,
                             slug: slug,
@@ -108,14 +110,15 @@ router.get('/', async (req, res) => {
                             price: productData.costBasis,
                             stock: productData.onhand,
                             barCode,
-                            images: ['https://theperfectroundgolf.com/wp-content/uploads/2022/04/placeholder.png']
+                            images: ['https://remax-six.vercel.app/assets/img/RemaxWirelessPlaceHolderImage.png']
                         });
                         insertedCount++;
+                        productArr.push(insertedProduct)
                     }
                 }
 
                 start += maxResults;
-                // console.log('Fetched inventory:', start, totalCount);
+                console.log('Fetched inventory:', start, totalCount);
             } catch (error) {
                 console.error('Error fetching inventory:', error);
             }
@@ -123,7 +126,7 @@ router.get('/', async (req, res) => {
         console.log('Inventory fetch complete!');
         console.log('Inserted products:', insertedCount);
         console.log('Updated products:', updatedCount);
-        res.json({ message: 'Inventory fetch complete!' });
+        res.json({ message: 'Inventory fetch complete!', productArr });
     } catch (err) {
         res.json({ message: err });
     }

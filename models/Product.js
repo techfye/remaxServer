@@ -17,10 +17,15 @@ const ProductSchema = new Schema({
         type: String,
         required: true
     },
-    reference: {
-        type: String,
-    },
     price: {
+        type: Number,
+        required: true
+    },
+    retailerPrice: {
+        type: Number,
+        required: true
+    },
+    dropshipperPrice: {
         type: Number,
         required: true
     },
@@ -28,16 +33,34 @@ const ProductSchema = new Schema({
         type: String,
     },
     stock: {
-        type: String,
+        type: Number,
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Category",
         // required: true
     },
+    brand: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Brand"
+    },
+    model: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Model"
+    },
+    design: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Design"
+    },
+    carrier: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Carrier",
+        required: false
+    },
     subcategory: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "SubCategory",
+        required: false
     },
     skuNumber: {
         type: String,
@@ -45,79 +68,21 @@ const ProductSchema = new Schema({
     images: {
         type: Array,
     },
-    specificReferences: {
-        type: Array,
-    },
-    condition: {
-        type: String,
-    },
-    variation: {
-        type: Array,
-    },
-    visibility: {
-        type: Boolean,
-        // default: true
-    },
     // tags: {
     //     type: mongoose.Schema.Types.ObjectId,
     //     ref: "Tag",
     // },
-    styleCode: {
-        type: String,
-    },
     barCode: {
         type: String,
         required: true,
         unique: true
     },
-    metalColor: {
+    weight: {
         type: String,
     },
-    rhodiumPlayed: {
-        type: String,
-    },
-    chainLength: {
-        type: String,
-    },
-    chainType: {
-        type: String,
-    },
-    clasp: {
-        type: String,
-    },
-    ringSize: {
-        type: String,
-    },
-    pheight: {
-        type: String,
-    },
-    pwidth: {
-        type: String,
-    },
-    plength: {
-        type: String,
-    },
-    backing: {
-        type: String,
-    },
-    minCartTotalWeight: {
-        type: String,
-    },
-    averageColor: {
-        type: String,
-    },
-    averageClarity: {
-        type: String,
-    },
-    settingType: {
-        type: String,
-    },
-    numberofDiamonds: {
-        type: String,
-    },
-    discount: {
-        type: String,
-    },
+    // discount: {
+    //     type: String,
+    // },
     bestSeller: {
         type: String,
     }

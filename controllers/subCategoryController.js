@@ -5,13 +5,6 @@ const fs = require("fs")
 
 const addSubCategory = asyncHandler(async (req, res) => {
     const { name, category, photo } = req.body;
-    // var url = req.protocol + '://' + req.get('host')
-    // if (req.file !== undefined) {
-    //     var photo = url + '/uploads/images/' + req.file.filename;
-    // }
-    // else {
-    //     var photo = url + '/uploads/images/placeholder.png'
-    // }
 
     const slug = slugify(name, {
         lower: true,

@@ -13,7 +13,6 @@ const UserSchema = new Schema({
     },
     businessType: {
         type: String,
-        enum : ['corporation' , 'partnership', 'soldProprietor', 'other']
     },
     companyName: {
         type: String,
@@ -63,6 +62,9 @@ const UserSchema = new Schema({
     password: {
         type: String,
     },
+    customerAccount: {
+        type: String,
+    },
     type:
     {
         type: String,
@@ -70,7 +72,7 @@ const UserSchema = new Schema({
     },
     isApproved: {
         type: String,
-        enum: ['Pending', 'Approved', 'Rejected', 'Blocked'],
+        enum: ['Pending', 'Approved', 'Rejected', 'Blocked', 'Under Review', 'Need Futher Documents'],
     },
     isAdmin: {
         type: Boolean,
@@ -90,6 +92,25 @@ const UserSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Tier",
     },
+    signature: {
+        type: String
+    },
+
+    printTitle: {
+        type: String
+    },
+    printName: {
+        type: String
+    },
+    drivingLicence: {
+        type: Array
+    },
+    resaleFile: {
+        type: Array
+    },
+    privacyPolicy: {
+        type: Boolean
+    }
 
 }, { timestamps: true });
 

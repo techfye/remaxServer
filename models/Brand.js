@@ -2,36 +2,34 @@ const { default: mongoose } = require("mongoose");
 const { Schema } = mongoose;
 const getNextSequenceValue = require("../middleware/counter");
 
-const CategorySchema = new Schema({
+const BrandSchema = new Schema({
     id: {
         type: Number,
     },
     name: {
         type: String,
-        // required: true
-        default: 'Uncategorized'
     },
     slug: {
         type: String,
-        // required: true
     },
+    photo: {
+        type: Array,
+    },
+    count: {
+        type: Number,
+    }
 }, {
     timestamps: true
 });
 
-
-CategorySchema.pre("save", async function (next) {
+BrandSchema.pre("save", async function (next) {
     const doc = this;
     if (doc.id == null) {
-        const seq = await getNextSequenceValue("Category");
+        const seq = await getNextSequenceValue("Brand");
         doc.id = seq;
     }
     next();
 });
 
-
-
-
-
-const Category = mongoose.model("Category", CategorySchema);
-module.exports = Category;
+const Brand = mongoose.model("Brand", BrandSchema);
+module.exports = Brand;

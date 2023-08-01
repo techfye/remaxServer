@@ -2,10 +2,12 @@ const asyncHandler = require("express-async-handler");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../utils/generateToken");
+// const { welcomeEmail } = require("../utils/welcomeEmail");
+
 
 
 const registerUser = asyncHandler(async (req, res) => {
-    const { 
+    const {
         firstName, lastName,
         businessType,
         companyName,
@@ -24,7 +26,15 @@ const registerUser = asyncHandler(async (req, res) => {
         resaleTaxId,
         jbtId,
         type,
-        password } = req.body.data;
+        password,
+        signature,
+        printTitle,
+        printName,
+        drivingLicence,
+        resaleFile,
+        privacyPolicy,
+
+    } = req.body.data;
 
 
     const userExists = await User.findOne({
@@ -36,8 +46,12 @@ const registerUser = asyncHandler(async (req, res) => {
     }
     let salt = await bcrypt.genSalt(10);
     let hashedpassword = await bcrypt.hash(password, salt);
+
+
+
     const user = await User.create({
-        firstName, lastName,
+        firstName,
+        lastName,
         businessType,
         companyName,
         regState,
@@ -55,14 +69,24 @@ const registerUser = asyncHandler(async (req, res) => {
         resaleTaxId,
         jbtId,
         type,
+        signature,
+        printTitle,
+        printName,
+        drivingLicence,
+        resaleFile,
+        privacyPolicy,
         password: hashedpassword,
-        isApproved: "Pending",
+        isApproved: "Approved",
     });
+    // welcomeEmail(user);
     if (user) {
         res.status(201).json({
             token: generateToken(user._id),
             name: user.name,
         });
+
+
+
     } else {
         res.status(400);
         throw new Error("Invalid user data");
@@ -106,7 +130,7 @@ const approveUser = asyncHandler(async (req, res) => {
         user.telBusiness = telBusiness;
         user.fax = fax;
         user.email = email;
-        user.fedTaxId = fedTaxId;                                                                                       
+        user.fedTaxId = fedTaxId;
         user.resaleTaxId = resaleTaxId;
         user.jbtId = jbtId;
         user.type = type;
@@ -123,9 +147,6 @@ const approveUser = asyncHandler(async (req, res) => {
     }
 });
 
-
-
-
 const loginUser = asyncHandler(async (req, res) => {
     const {
         email,
@@ -134,7 +155,27 @@ const loginUser = asyncHandler(async (req, res) => {
     const user = await User.findOne({
         email
     });
-    if (user && (await bcrypt.compare(password, user.password)) && (user.isApproved === 'Approved'))  {
+    if (user && (await bcrypt.compare(password, user.password)) && (user.isApproved === 'Approved')) {
+        res.json({
+            token: generateToken(user._id),
+            name: user.name,
+        });
+    } else {
+        res.status(401);
+        res.json({ "error": "Invalid email or password" });
+    }
+});
+
+
+const loginAdminUser = asyncHandler(async (req, res) => {
+    const {
+        email,
+        password
+    } = req.body;
+    const user = await User.findOne({
+        email
+    });
+    if (user && (await bcrypt.compare(password, user.password)) && (user.isApproved === 'Approved') && (user.isAdmin === true)) {
         res.json({
             token: generateToken(user._id),
             isAdmin: user.isAdmin,
@@ -145,6 +186,44 @@ const loginUser = asyncHandler(async (req, res) => {
         res.json({ "error": "Invalid email or password" });
     }
 });
+
+const registerExistingUser = asyncHandler(async (req, res) => {
+    const {
+        firstName, lastName,
+        customerAccount,
+        email,
+        password,
+    } = req.body;
+
+    const userExists = await User.findOne({
+        email
+    });
+
+    if (userExists) {
+        res.status(400);
+        throw new Error("User already exists");
+    }
+    let salt = await bcrypt.genSalt(10);
+    let hashedpassword = await bcrypt.hash(password, salt);
+    const user = await User.create({
+        firstName, lastName,
+        customerAccount,
+        email,
+        password: hashedpassword,
+        isApproved: "Approved",
+    });
+    if (user) {
+        res.status(201).json({
+            token: generateToken(user._id),
+            name: user.name,
+        });
+    } else {
+        res.status(400);
+        throw new Error("Invalid user data");
+    }
+});
+
+
 
 const editUser = asyncHandler(async (req, res) => {
     const {
@@ -215,4 +294,6 @@ module.exports = {
     deleteUser,
     getUser,
     getAllUsers,
+    registerExistingUser,
+    loginAdminUser
 };

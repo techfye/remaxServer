@@ -4,17 +4,17 @@ let path = require('path');
 
 
 const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
+    destination: function (req, file, cb) {
         cb(null, 'uploads/images');
     },
-    filename: function(req, file, cb) {   
-        cb(null,  uuidv4() + '-' + Date.now() + path.extname(file.originalname));
+    filename: function (req, file, cb) {
+        cb(null, uuidv4() + '-' + Date.now() + path.extname(file.originalname));
     }
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'video/mp4'];
-    if(allowedFileTypes.includes(file.mimetype)) {
+    const allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'video/mp4', 'application/pdf'];
+    if (allowedFileTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
         cb(null, false);
