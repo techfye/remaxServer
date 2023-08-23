@@ -1,43 +1,36 @@
 const asyncHandler = require("express-async-handler");
-const stripe = require("stripe")('sk_test_51KiIuMEJhTgsz6Az1FXv4vzxQosGyQrWs1oNsIqmbOXmy02hpONOMVLfSi4ZRhssXH5KeLIOegh3kqN4PtR9WtLq00F8WX8EfW');
-const { v4: uuidv4 } = require("uuid");
+const stripe = require("stripe")(
+    "sk_test_51LsnKsLJYQ2VsU7txdfZ76iN7aqLCrckOiv9SDW21ehAd43cq7uVgQZBibVtUoPF3yiAMxdIIzIpYU7TxQlh6KZw00HvVwP8Ns"
+);
+
+let globalClientSecret;
 
 const cardPayment = asyncHandler(async (req, res) => {
-    const { number, exp_month, exp_year, cvc, amount , email } = req.body;
-    const intPrice = parseInt(amount * 100);
-    const idempotencyKey = uuidv4();
-    const token = await stripe.tokens.create({
-        card: {
-            number: number,
-            exp_month: exp_month,
-            exp_year: exp_year,
-            cvc: cvc,
-        }
-    }
-    );
+    const { amount } = req.body;
     try {
-        const customer = await stripe.customers.create({
-            email: email,
-            source: token.id
+        const paymentIntent = await stripe.paymentIntents.create({
+            currency: "USD",
+            amount: (amount * 100).toFixed(2).split(".")[0],
+            payment_method_types: ["card"],
         });
-        const charge = await stripe.charges.create(
-            {
-                amount: intPrice,
-                currency: "usd",
-                customer: customer.id,
-                receipt_email: token.email,
-                description: "Charged for purchase of order Id = this"
-            },
-            {
-                idempotencyKey
-            }
-        );
-        res.status(200).json({ message: "Payment Successful", "charge": charge });
-    }
-    catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error : error });
+
+        globalClientSecret = paymentIntent.client_secret; // Assign the client secret to the global variable
+
+        if (!globalClientSecret)
+            return res.status(400).json({ message: "Something went wrong" });
+        res.send({
+            clientSecret: globalClientSecret,
+        });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
 });
 
+const getClientSecret = () => {
+    if (!globalClientSecret) return null; // If the global variable is not set, return null
+    return globalClientSecret; // Return the client
+};
 
-module.exports = { cardPayment };
+
+module.exports = { cardPayment, getClientSecret  };
+

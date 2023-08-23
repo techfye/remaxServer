@@ -23,11 +23,9 @@ const ProductSchema = new Schema({
     },
     retailerPrice: {
         type: Number,
-        required: true
     },
     dropshipperPrice: {
         type: Number,
-        required: true
     },
     description: {
         type: String,
@@ -38,7 +36,6 @@ const ProductSchema = new Schema({
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Category",
-        // required: true
     },
     brand: {
         type: mongoose.Schema.Types.ObjectId,
@@ -80,15 +77,36 @@ const ProductSchema = new Schema({
     weight: {
         type: String,
     },
-    // discount: {
-    //     type: String,
-    // },
+    color: {
+        type: String,
+    },
     bestSeller: {
         type: String,
+    },
+    clearance: {
+        type: String,
+    },
+    dropshipperDiscount: {
+        type: Number,
+    },
+    retailerDiscount: {
+        type: Number,
+    },
+    consumerDiscount: {
+        type: Number,
+    },
+    status: {
+        type: String,
+        enum: ['Draft', 'Published'],
     }
+
+
 }, {
     timestamps: true
 });
+
+ProductSchema.index({ name: "text", barCode: "text" });
+
 
 ProductSchema.pre("save", async function (next) {
     const doc = this;

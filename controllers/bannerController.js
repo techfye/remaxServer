@@ -9,16 +9,14 @@ const createBanner = asyncHandler(async (req, res) => {
         url: url,
         photo: photo
     });
-    const createdBrand = await banner.save();
-    res.status(201).json({ message: 'Banner created successfully', createdBrand });
+    const createdBanner = await banner.save();
+    res.status(201).json({ message: 'Banner created successfully', createdBanner });
 }
 );
 
 const updateBanner = asyncHandler(async (req, res) => {
-    // console.log(req.body)
     const { url, photo } = req.body;
     const banner = await Banner.findById(req.params.id);
-    console.log(banner)
     if (banner) {
         banner.url = url;
         banner.photo = photo

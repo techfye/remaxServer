@@ -68,11 +68,11 @@ const UserSchema = new Schema({
     type:
     {
         type: String,
-        enum: ['Retailer', 'Dropshipper', 'Admin'],
+        enum: ['Retailer', 'Dropshipper', 'Admin', 'Consumer'],
     },
     isApproved: {
         type: String,
-        enum: ['Pending', 'Approved', 'Rejected', 'Blocked', 'Under Review', 'Need Futher Documents'],
+        enum: ['Pending', 'Approved', 'Rejected', 'Blocked', 'Under Review', 'Need Further Documents'],
     },
     isAdmin: {
         type: Boolean,
@@ -110,7 +110,11 @@ const UserSchema = new Schema({
     },
     privacyPolicy: {
         type: Boolean
-    }
+    },
+    Addresses: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Address",
+    }],
 
 }, { timestamps: true });
 

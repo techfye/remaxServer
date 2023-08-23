@@ -2,16 +2,15 @@ const ConnectToMongo = require('./config/db');
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser')
-const bodyParser = require('body-parser');
 
 
 ConnectToMongo();
 
 const app = express()
-const port = process.env.PORT || 5005;
+const port = process.env.PORT || 5000;
 app.use(express.json())
-
-app.use(cookieParser())
+app.use(cors());
+app.use(cookieParser());
 
 
 app.use((req, res, next) => {
@@ -19,22 +18,11 @@ app.use((req, res, next) => {
   res.header('x-auth-token', '*')
   next();
 });
-app.use(cors());
 
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
-app.use(express.json({ limit: "50mb" }));
-
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 app.get('/', (req, res) => {
-  res.send("Hello Remax");
+  res.send("Welcome to remax");
 })
-
-app.post('/webhook-verification', (req, res) => {
-  console.log(req.body)
-})
-
 
 
 app.use('/auth', require('./routes/auth'))
@@ -52,9 +40,11 @@ app.use('/banner', require('./routes/banner'))
 app.use('/carrier', require('./routes/carrier'))
 app.use('/dropshipfee', require('./routes/dropshipFee'))
 app.use('/uploads/images', express.static('uploads/images'))
-// app.use('/inven', require('./invenrouter') )
+app.use('/address', require('./routes/address'))
+app.use('/tax', require('./routes/tax'))
 app.use('/api', require('./routes/file'))
 app.use('/posinven', require('./posInven'))
+app.use('/payments', require('./routes/payment'))
 
 
 

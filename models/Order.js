@@ -3,12 +3,8 @@ const { Schema } = mongoose;
 const getNextSequenceValue = require("../middleware/counter");
 
 const OrderSchema = new Schema({
-    id : {
+    id: {
         type: Number,
-    },
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: "User"
     },
     orderItems: [
         {
@@ -23,20 +19,28 @@ const OrderSchema = new Schema({
         }
     ],
     shippingInfo: {
-        name : { type: String },
+        name: { type: String },
         address: { type: String },
         city: { type: String },
         postalCode: { type: String },
-        country: { type: String }
+        country: { type: String },
+        email: { type: String },
+        phone: { type: String },
+        isResidential: { type: Boolean, default: false }
     },
     billingInfo: {
-        name : { type: String, required: true },
+        name: { type: String, required: true },
         address: { type: String, required: true },
         email: { type: String, required: true },
         phone: { type: String, required: true },
         city: { type: String, required: true },
         postalCode: { type: String, required: true },
-        country: { type: String, required: true }
+        country: { type: String, required: true },
+        isResidential: { type: Boolean, default: false }
+    },
+
+    tax: {
+        type: Number,
     },
 
     orderNote: {
@@ -45,7 +49,7 @@ const OrderSchema = new Schema({
 
     paymentMethod: {
         type: String,
-        required: true
+
     },
     itemsPrice: {
         type: Number,
@@ -71,10 +75,15 @@ const OrderSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['Processing', 'Received', 'Shipped']
+        enum: ['Received', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
     },
     deliveredAt: {
         type: Date
+    },
+
+    customer: {
+        type: Schema.Types.ObjectId,
+        ref: "User"
     }
 
 }, {

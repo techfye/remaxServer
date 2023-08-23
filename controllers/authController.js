@@ -76,22 +76,48 @@ const registerUser = asyncHandler(async (req, res) => {
         resaleFile,
         privacyPolicy,
         password: hashedpassword,
-        isApproved: "Approved",
+        isApproved: "Pending",
+
     });
     // welcomeEmail(user);
     if (user) {
         res.status(201).json({
             token: generateToken(user._id),
-            name: user.name,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            telBusiness: user.telBusiness,
+            fax: user.fax,
+            type: user.type,
         });
-
-
-
     } else {
         res.status(400);
         throw new Error("Invalid user data");
     }
 });
+
+
+const RedisterConsumerUser = asyncHandler(async (req, res) => {
+    const { name, email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+        res.status(400);
+        throw new Error("User already exists");
+    }
+    let salt = await bcrypt.genSalt(10);
+    let hashedpassword = await bcrypt.hash(password, salt);
+    const newUser = await User.create({ firstName: name, email, password: hashedpassword, isApproved: "Approved", type: "Consumer" });
+    if (newUser) {
+        res.status(201).json({
+            token: generateToken(newUser._id),
+            name: newUser.firstName,
+        });
+    } else {
+        res.status(400);
+        throw new Error("Invalid user data");
+    }
+});
+
 
 const approveUser = asyncHandler(async (req, res) => {
     const { type, amount, limit, tier, isApproved,
@@ -158,7 +184,13 @@ const loginUser = asyncHandler(async (req, res) => {
     if (user && (await bcrypt.compare(password, user.password)) && (user.isApproved === 'Approved')) {
         res.json({
             token: generateToken(user._id),
-            name: user.name,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            telBusiness: user.telBusiness,
+            fax: user.fax,
+            type: user.type,
+
         });
     } else {
         res.status(401);
@@ -179,7 +211,13 @@ const loginAdminUser = asyncHandler(async (req, res) => {
         res.json({
             token: generateToken(user._id),
             isAdmin: user.isAdmin,
-            name: user.name,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            telBusiness: user.telBusiness,
+            fax: user.fax,
+            type: user.type,
+
         });
     } else {
         res.status(401);
@@ -227,21 +265,37 @@ const registerExistingUser = asyncHandler(async (req, res) => {
 
 const editUser = asyncHandler(async (req, res) => {
     const {
-        name,
+        firstName,
+        lastName,
         email,
-        password,
-        address,
-        phone,
-        type,
+        telBusiness,
+        fax
     } = req.body;
-    const user = await User.findById(req.params.id).select("-password");
+    const user = await User.findById(req.user.id);
     if (user) {
-        user.name = name;
+        user.firstName = firstName;
+        user.lastName = lastName;
         user.email = email;
-        user.password = await bcrypt.hash(password, await bcrypt.genSalt(10));
-        user.address = address;
-        user.phone = phone;
-        user.type = type;
+        user.telBusiness = telBusiness;
+        user.fax = fax;
+
+
+        const updatedUser = await user.save();
+        // console.log(updatedUser);
+        res.json(updatedUser);
+    } else {
+        res.status(404);
+        throw new Error("User not found");
+    }
+});
+
+const changePassword = asyncHandler(async (req, res) => {
+    const { password } = req.body;
+    const user = await User.findById(req.user.id);
+    if (user) {
+        let salt = await bcrypt.genSalt(10);
+        let hashedpassword = await bcrypt.hash(password, salt);
+        user.password = hashedpassword;
         const updatedUser = await user.save();
         res.json(updatedUser);
     } else {
@@ -249,6 +303,8 @@ const editUser = asyncHandler(async (req, res) => {
         throw new Error("User not found");
     }
 });
+
+
 
 const deleteUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id).select("-password");
@@ -286,6 +342,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
 
 
+
 module.exports = {
     registerUser,
     approveUser,
@@ -295,5 +352,7 @@ module.exports = {
     getUser,
     getAllUsers,
     registerExistingUser,
-    loginAdminUser
+    loginAdminUser,
+    RedisterConsumerUser,
+    changePassword
 };
